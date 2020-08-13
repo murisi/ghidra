@@ -57,6 +57,7 @@ public class DecompileResults {
 	private Language language;
 	private CompilerSpec compilerSpec;
 	private PcodeDataTypeManager dtmanage;
+	private BlockGraph bgraph; // BlockGraph parsed from xml
 	private HighFunction hfunc; // HighFunction parsed from xml
 	private HighParamID hparamid; //Parameter ID information
 	private ClangTokenGroup docroot; // C code parsed from XML
@@ -167,6 +168,16 @@ public class DecompileResults {
 	public HighFunction getHighFunction() {
 		return hfunc;
 	}
+	
+	/**
+	 * Get the structured block graph associated with these
+	 * decompilation results, or null if there was an error
+	 * during decompilation
+	 * @return the resulting BlockGraph object
+	 */
+	public BlockGraph getStructuredGraph() {
+		return bgraph;
+	}
 
 	/**
 	 * Get the high-level function structure associated
@@ -237,6 +248,10 @@ public class DecompileResults {
 						hparamid = new HighParamID(function, language, compilerSpec, dtmanage);
 						hparamid.readXML(parser);
 					}
+					else if (el.getName().equals("block")) {
+						bgraph = new BlockGraph();
+						bgraph.restoreXml(parser, function.getProgram().getAddressFactory());
+					}
 					else {
 						errMsg = "Unknown decompiler tag: "+el.getName();
 						return;
@@ -247,12 +262,14 @@ public class DecompileResults {
 				errMsg = e.getMessage();
 				hfunc = null;
 				hparamid = null;
+				bgraph = null;
 				return;
 			}
 			catch (RuntimeException e) {		// Exception from the raw parser
 				errMsg = e.getMessage();
 				hfunc = null;
 				hparamid = null;
+				bgraph = null;
 				return;
 			}
 		}

@@ -323,6 +323,7 @@ void DecompileAt::rawAction(void)
       if (ghidra->getSendCCode()&&
 	  (ghidra->allacts.getCurrentName() == "decompile"))
         ghidra->print->docFunction(fd);
+      fd->getStructure().saveXml(sout);
     }
     sout << "</doc>\n";
   }
